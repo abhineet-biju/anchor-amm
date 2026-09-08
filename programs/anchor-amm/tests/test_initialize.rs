@@ -1,78 +1,12 @@
+mod common;
+
 use {
     anchor_amm::{error::ErrorCode, AmmConfig},
-    anchor_lang::{
-        prelude::Pubkey,
-        solana_program::{instruction::Instruction, system_program},
-        AccountDeserialize, Discriminator, InstructionData, Space, ToAccountMetas,
-    },
-    litesvm::{types::TransactionResult, LiteSVM},
-    solana_keypair::Keypair,
-    solana_message::{Message, VersionedMessage},
+    anchor_lang::{AccountDeserialize, Discriminator, Space},
+    common::setup,
     solana_signer::Signer,
-    solana_transaction::{versioned::VersionedTransaction, InstructionError, TransactionError},
+    solana_transaction::{InstructionError, TransactionError},
 };
-
-struct TestFixture {
-    svm: LiteSVM,
-    maker: Keypair,
-    admin: Keypair,
-}
-
-struct InitializeOutcome {
-    result: TransactionResult,
-    amm_config: Pubkey,
-    bump: u8,
-}
-
-fn setup() -> TestFixture {
-    let maker = Keypair::new();
-    let admin = Keypair::new();
-    let mut svm = LiteSVM::new();
-    // Build the SBF program before running these tests with `anchor test`.
-    let bytes = include_bytes!(concat!(
-        env!("CARGO_TARGET_TMPDIR"),
-        "/../deploy/anchor_amm.so"
-    ));
-    svm.add_program(anchor_amm::id(), bytes).unwrap();
-    svm.airdrop(&maker.pubkey(), 1_000_000_000).unwrap();
-    TestFixture { svm, maker, admin }
-}
-
-impl TestFixture {
-    fn initialize_amm(&mut self, id: u64, fee: u16, paused: u8) -> InitializeOutcome {
-        let program_id = anchor_amm::id();
-        let (amm_config, bump) = Pubkey::find_program_address(
-            &[b"amm", self.maker.pubkey().as_ref(), &id.to_le_bytes()],
-            &program_id,
-        );
-        let instruction = Instruction::new_with_bytes(
-            program_id,
-            &anchor_amm::instruction::InitializeAmm { id, fee, paused }.data(),
-            anchor_amm::accounts::InitializeAmm {
-                maker: self.maker.pubkey(),
-                admin: self.admin.pubkey(),
-                amm_config,
-                system_program: system_program::ID,
-            }
-            .to_account_metas(None),
-        );
-        let message = Message::new_with_blockhash(
-            &[instruction],
-            Some(&self.maker.pubkey()),
-            &self.svm.latest_blockhash(),
-        );
-        let transaction = VersionedTransaction::try_new(
-            VersionedMessage::Legacy(message),
-            &[&self.maker, &self.admin],
-        )
-        .unwrap();
-        InitializeOutcome {
-            result: self.svm.send_transaction(transaction),
-            amm_config,
-            bump,
-        }
-    }
-}
 
 #[test]
 fn initialize_amm_creates_config() {
