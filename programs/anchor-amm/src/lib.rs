@@ -22,4 +22,9 @@ pub mod anchor_amm {
     ) -> Result<()> {
         ctx.accounts.handler(id, fee, paused, &ctx.bumps)
     }
+
+    #[instruction(discriminator = [2])]
+    pub fn initialize_pool(ctx: Context<InitializePool>, id: u64) -> Result<()> {
+        ctx.accounts.handler(&ctx.bumps)
+    }
 }

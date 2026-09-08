@@ -10,3 +10,13 @@ pub struct AmmConfig {
     pub paused: u8,
     pub bump: u8,
 }
+
+#[account(discriminator = [2])]
+#[derive(InitSpace)]
+pub struct PoolConfig {
+    pub amm_config: Pubkey,
+    pub mint_a: Pubkey,
+    pub mint_b: Pubkey,
+    pub bump: u8,
+    pub lp_bump: u8,
+}
