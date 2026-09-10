@@ -59,4 +59,8 @@ pub mod anchor_amm {
     pub fn update_fee(ctx: Context<UpdateFee>, fee: u16) -> Result<()> {
         ctx.accounts.handler(fee)
     }
+    #[instruction(discriminator = [8])]
+    pub fn transfer_admin(ctx: Context<TransferAdmin>) -> Result<()> {
+        ctx.accounts.handler()
+    }
 }
