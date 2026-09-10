@@ -24,7 +24,17 @@ pub mod anchor_amm {
     }
 
     #[instruction(discriminator = [2])]
-    pub fn initialize_pool(ctx: Context<InitializePool>, id: u64) -> Result<()> {
+    pub fn initialize_pool(ctx: Context<InitializePool>, _id: u64) -> Result<()> {
         ctx.accounts.handler(&ctx.bumps)
+    }
+
+    #[instruction(discriminator = [3])]
+    pub fn deposit_to_pool(
+        ctx: Context<Deposit>,
+        max_a: u64,
+        max_b: u64,
+        min_lp_out: u64,
+    ) -> Result<()> {
+        ctx.accounts.handler(max_a, max_b, min_lp_out)
     }
 }

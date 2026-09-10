@@ -2,21 +2,27 @@ use anchor_lang::prelude::*;
 
 use crate::error::ErrorCode;
 
-/// Calculates the total initial LP allocation as floor(sqrt(x * y)).
-/// Inputs are raw deposit amounts. Does not deduct locked liquidity
-/// or reject zero amounts.
-pub fn initial_liquidity(x: u64, y: u64) -> u64 {
-    let k: u128 = x as u128 * y as u128;
-
-    k.isqrt() as u64
-}
-
 pub struct DepositQuote {
     pub amount_a: u64,
     pub amount_b: u64,
     pub lp_out: u64,
 }
 impl DepositQuote {
+    /// Quotes the initial deposit and LP allocation as floor(sqrt(x * y)).
+    /// Rejects zero deposit amounts. Does not account for existing vault
+    /// balances or deduct locked liquidity.
+    pub fn initial_liquidity(x: u64, y: u64) -> Result<Self> {
+        require!(x > 0 && y > 0, ErrorCode::InvalidDepositAmount);
+
+        let k: u128 = x as u128 * y as u128;
+
+        Ok(Self {
+            amount_a: x,
+            amount_b: y,
+            lp_out: k.isqrt() as u64,
+        })
+    }
+
     /// Quotes deposit amounts within the user's limits and the LP tokens to mint.
     /// Uses pre-deposit reserves and LP supply. Integer divisions round down.
     /// Requires an existing pool with nonzero reserves and LP supply.

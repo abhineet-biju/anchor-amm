@@ -70,6 +70,7 @@ pub struct InitializePool<'info> {
     pub lp_mint: InterfaceAccount<'info, Mint>,
 
     pub system_program: Program<'info, System>,
+    #[account(address = anchor_spl::token::ID)]
     pub token_program: Interface<'info, TokenInterface>,
     pub associated_token_program: Program<'info, AssociatedToken>,
 }
