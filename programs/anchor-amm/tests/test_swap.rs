@@ -1,10 +1,10 @@
 mod common;
 
 use {
-    anchor_amm::{error::ErrorCode, AmmConfig},
+    anchor_amm::error::ErrorCode,
     anchor_lang::{
         solana_program::{instruction::Instruction, program_pack::Pack, system_program},
-        AccountDeserialize, AccountSerialize, InstructionData, ToAccountMetas,
+        InstructionData, ToAccountMetas,
     },
     anchor_spl::{
         associated_token,
@@ -99,18 +99,7 @@ fn rejects_slippage_in_both_directions() {
 #[test]
 fn rejects_paused_amm() {
     let mut f = setup_swap();
-    // Seed the paused state because an admin update instruction does not exist yet.
-    let mut account = f.pool.base.svm.get_account(&f.pool.amm_config).unwrap();
-    let mut config = AmmConfig::try_deserialize(&mut account.data.as_slice()).unwrap();
-    config.paused = 1;
-    config
-        .try_serialize(&mut account.data.as_mut_slice())
-        .unwrap();
-    f.pool
-        .base
-        .svm
-        .set_account(f.pool.amm_config, account)
-        .unwrap();
+    f.pool.base.set_paused(f.pool.amm_config, 1).unwrap();
     let before = f.snapshot();
     assert_eq!(
         swap(&mut f, true, 100, 0).unwrap_err().err,

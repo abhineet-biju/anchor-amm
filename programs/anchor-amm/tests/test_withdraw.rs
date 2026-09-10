@@ -1,10 +1,10 @@
 mod common;
 
 use {
-    anchor_amm::{error::ErrorCode, AmmConfig},
+    anchor_amm::error::ErrorCode,
     anchor_lang::{
         solana_program::{instruction::Instruction, program_pack::Pack, system_program},
-        AccountDeserialize, AccountSerialize, InstructionData, ToAccountMetas,
+        InstructionData, ToAccountMetas,
     },
     anchor_spl::{
         associated_token::{self, get_associated_token_address_with_program_id},
@@ -179,18 +179,7 @@ fn second_transfer_failure_rolls_back_burn_and_first_transfer() {
 #[test]
 fn allows_withdrawal_while_amm_is_paused() {
     let mut f = setup_withdraw();
-    // No admin update instruction exists yet; seed the paused state directly.
-    let mut account = f.pool.base.svm.get_account(&f.pool.amm_config).unwrap();
-    let mut config = AmmConfig::try_deserialize(&mut account.data.as_slice()).unwrap();
-    config.paused = 1;
-    config
-        .try_serialize(&mut account.data.as_mut_slice())
-        .unwrap();
-    f.pool
-        .base
-        .svm
-        .set_account(f.pool.amm_config, account)
-        .unwrap();
+    f.pool.base.set_paused(f.pool.amm_config, 1).unwrap();
     withdraw(&mut f, 500, 250, 1_000).unwrap();
     assert_eq!(f.supply(), 1_500);
     assert_eq!(f.balance(f.user_a), 9_250);

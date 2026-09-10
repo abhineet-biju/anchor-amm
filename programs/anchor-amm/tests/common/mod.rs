@@ -40,6 +40,29 @@ pub fn setup() -> TestFixture {
 }
 
 impl TestFixture {
+    pub fn set_paused(&mut self, amm_config: Pubkey, paused: u8) -> TransactionResult {
+        let ix = Instruction::new_with_bytes(
+            anchor_amm::id(),
+            &anchor_amm::instruction::SetPaused { paused }.data(),
+            anchor_amm::accounts::SetPaused {
+                admin: self.admin.pubkey(),
+                amm_config,
+            }
+            .to_account_metas(None),
+        );
+        let message = Message::new_with_blockhash(
+            &[ix],
+            Some(&self.maker.pubkey()),
+            &self.svm.latest_blockhash(),
+        );
+        let tx = VersionedTransaction::try_new(
+            VersionedMessage::Legacy(message),
+            &[&self.maker, &self.admin],
+        )
+        .unwrap();
+        self.svm.send_transaction(tx)
+    }
+
     pub fn initialize_amm(&mut self, id: u64, fee: u16, paused: u8) -> InitializeOutcome {
         let program_id = anchor_amm::id();
         let (amm_config, bump) = Pubkey::find_program_address(
