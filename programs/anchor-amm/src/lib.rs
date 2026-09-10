@@ -37,4 +37,14 @@ pub mod anchor_amm {
     ) -> Result<()> {
         ctx.accounts.handler(max_a, max_b, min_lp_out)
     }
+
+    #[instruction(discriminator = [4])]
+    pub fn withdraw_from_pool(
+        ctx: Context<Withdraw>,
+        lp_to_burn: u64,
+        min_a: u64,
+        min_b: u64,
+    ) -> Result<()> {
+        ctx.accounts.handler(lp_to_burn, min_a, min_b)
+    }
 }

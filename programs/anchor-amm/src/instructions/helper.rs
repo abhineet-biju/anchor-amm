@@ -87,8 +87,15 @@ pub struct WithdrawQuote {
 impl WithdrawQuote {
     /// Quotes token amounts returned for burning a specified LP amount.
     /// Uses pre-withdrawal reserves and LP supply, rounding outputs down.
-    /// Rejects withdrawals where either token output is zero.
-    pub fn quote_withdraw(lp_to_burn: u64, x: u64, y: u64, l: u64) -> Result<Self> {
+    /// Rejects zero outputs or outputs below the supplied minimum amounts.
+    pub fn quote_withdraw(
+        lp_to_burn: u64,
+        min_a: u64,
+        min_b: u64,
+        x: u64,
+        y: u64,
+        l: u64,
+    ) -> Result<Self> {
         require!(lp_to_burn > 0, ErrorCode::InvalidWithdrawAmount);
         require!(l > 0, ErrorCode::InvalidLiquidityState);
         require!(lp_to_burn <= l, ErrorCode::InvalidWithdrawAmount);
@@ -99,6 +106,10 @@ impl WithdrawQuote {
         require!(
             amount_a > 0 && amount_b > 0,
             ErrorCode::InsufficientWithdrawOutput
+        );
+        require!(
+            amount_a >= min_a && amount_b >= min_b,
+            ErrorCode::SlippageExceeded
         );
         Ok(Self { amount_a, amount_b })
     }
