@@ -47,4 +47,8 @@ pub mod anchor_amm {
     ) -> Result<()> {
         ctx.accounts.handler(lp_to_burn, min_a, min_b)
     }
+    #[instruction(discriminator = [5])]
+    pub fn swap(ctx: Context<Swap>, a_to_b: bool, amount_in: u64, min_out: u64) -> Result<()> {
+        ctx.accounts.handler(a_to_b, amount_in, min_out)
+    }
 }
