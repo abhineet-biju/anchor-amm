@@ -51,4 +51,8 @@ pub mod anchor_amm {
     pub fn swap(ctx: Context<Swap>, a_to_b: bool, amount_in: u64, min_out: u64) -> Result<()> {
         ctx.accounts.handler(a_to_b, amount_in, min_out)
     }
+    #[instruction(discriminator = [6])]
+    pub fn set_paused(ctx: Context<SetPaused>, paused: u8) -> Result<()> {
+        ctx.accounts.handler(paused)
+    }
 }
