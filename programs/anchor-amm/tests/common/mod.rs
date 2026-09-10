@@ -76,3 +76,5 @@ impl TestFixture {
 }
 
 pub mod pool;
+
+pub mod liquidity;
