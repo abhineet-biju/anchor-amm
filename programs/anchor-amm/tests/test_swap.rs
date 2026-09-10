@@ -173,3 +173,28 @@ fn rejects_zero_input() {
     );
     assert_eq!(before, f.snapshot());
 }
+
+#[test]
+fn fee_updates_apply_to_existing_pool_in_both_directions() {
+    // Independent expected outputs for reserves 1000 A / 4000 B.
+    for (fee, direction, amount, out) in [
+        (0, true, 100, 363),
+        (100, true, 100, 360),
+        (0, false, 400, 90),
+        (100, false, 400, 90),
+    ] {
+        let mut f = setup_swap();
+        let before = f.snapshot();
+        f.pool.base.update_fee(f.pool.amm_config, fee).unwrap();
+        assert_eq!(before, f.snapshot());
+        swap(&mut f, direction, amount, out).unwrap();
+        if direction {
+            assert_eq!(f.balance(f.user_b), 6_000 + out);
+            assert_eq!(f.balance(f.addresses.vault_a), 1_100);
+        } else {
+            assert_eq!(f.balance(f.user_a), 9_000 + out);
+            assert_eq!(f.balance(f.addresses.vault_b), 4_400);
+        }
+        assert_eq!(f.supply(), 2_000);
+    }
+}
