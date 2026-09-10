@@ -55,4 +55,8 @@ pub mod anchor_amm {
     pub fn set_paused(ctx: Context<SetPaused>, paused: u8) -> Result<()> {
         ctx.accounts.handler(paused)
     }
+    #[instruction(discriminator = [7])]
+    pub fn update_fee(ctx: Context<UpdateFee>, fee: u16) -> Result<()> {
+        ctx.accounts.handler(fee)
+    }
 }

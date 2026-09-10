@@ -31,7 +31,7 @@ impl<'info> InitializeAmm<'info> {
         paused: u8,
         bumps: &InitializeAmmBumps,
     ) -> Result<()> {
-        require!(fee <= 10_000, ErrorCode::InvalidFee);
+        require!(fee < 10_000, ErrorCode::InvalidFee);
         require!(paused <= 1, ErrorCode::InvalidPaused);
 
         self.amm_config.set_inner(AmmConfig {
