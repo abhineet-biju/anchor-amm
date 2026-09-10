@@ -74,3 +74,5 @@ impl TestFixture {
         }
     }
 }
+
+pub mod pool;
