@@ -33,6 +33,23 @@ anchor test --skip-deploy --skip-local-validator
 
 This builds the program and its IDL, then runs the Rust integration tests with LiteSVM. No deployment or local validator is needed.
 
+## Test results
+
+53 integration tests cover all eight instructions. The screenshots below show each test passing.
+
+<details>
+<summary>View test screenshots</summary>
+
+![Deposit and AMM initialization tests passing](docs/images/tests-deposit-initialize.png)
+
+![Pool initialization and pause tests passing](docs/images/tests-pool-pause.png)
+
+![Swap and admin transfer tests passing](docs/images/tests-swap-transfer-admin.png)
+
+![Fee update and withdrawal tests passing](docs/images/tests-fee-withdraw.png)
+
+</details>
+
 ## Scope
 
 This is an educational implementation for the legacy SPL Token Program. It does not support Token-2022, oracle pricing, protocol fees, or minimum locked liquidity.
